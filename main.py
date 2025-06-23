@@ -1,44 +1,17 @@
-from typing import Union
-from pydantic import BaseModel
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI
+from server import models
+from server.database import engine
+from server.routes import router 
 
-app = FastAPI()
+# Create all tables in the database
+models.Base.metadata.create_all(bind=engine)
 
-class User(BaseModel):
-    email: str
-    password: str
-@app.post("/register")
-def register_user(user: User):
-    return user
+# Initialize FastAPI app
+app = FastAPI(
+    title="LMS API",
+    description="A simple Learning Management System API using FastAPI",
+    version="1.0.0"
+)
 
-@app.post("/login")
-def login_user(email: str, password: str):
-    return {"email": email, "password": password}
-
-@app.post("/assignments/{assignment_id}")
-def submit_assignment(assignment_id: int, file: UploadFile = File(...)):
-    return {"assignment_id": assignment_id, "filename": file.filename}
-
-@app.get("/assignments/{assignment_id}")
-def get_assignment(assignment_id: int):
-    return {"assignment_id": assignment_id}
-
-@app.get("/courses")
-def get_courses():
-    return {"courses": ["course1", "course2", "course3"]}
-
-@app.get("/courses/{course_id}")
-def get_course(course_id: int):
-    return {"course_id": course_id}
-
-@app.put("/assignments/{assignment_id}")
-def update_assignment(assignment_id: int, file: Union[str, None] = None):
-    return {"assignment_id": assignment_id, "file": file}
-
-@app.put("/profile")
-def update_profile(email: str, password: str):
-    return {"email": email, "password": password}
-
-@app.delete("/courses/{course_id}")
-def delete_course(course_id: int):
-    return {"course_id": course_id}
+# Register all routes
+app.include_router(router)
