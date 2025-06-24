@@ -28,7 +28,7 @@ class Course(Base):
 
     teacher = relationship("User", back_populates="courses")
     assignments = relationship("Assignment", back_populates="course")
-    lessons = relationship("Lesson", back_populates="course")  # ➕ add this line
+    lessons = relationship("Lesson", back_populates="course") 
 
 class Lesson(Base):
     __tablename__ = "lessons"
