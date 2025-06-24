@@ -4,6 +4,7 @@ from server.database import engine
 from server.routes import router 
 from fastapi.middleware.cors import CORSMiddleware
 
+
 # Create all tables in the database
 models.Base.metadata.create_all(bind=engine)
 
@@ -16,7 +17,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or ["*"] for all origins (less secure)
+    allow_origins=["http://localhost:5173"],  # or ["*"] for all origins (less secure)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 from server import models, schemas
 from server.database import SessionLocal, engine
 from typing import List 
-#Python 3.8 does not support list[T]. That feature (PEP 585) was introduced in Python 3.9.
+from server.auth import get_password_hash
+
+
 models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
@@ -24,7 +26,15 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    new_user = models.User(email=user.email, password=user.password, role=user.role)
+
+    hashed_password = get_password_hash(user.password) 
+
+    new_user = models.User(
+        name=user.name,
+        email=user.email,
+        password=hashed_password,  # store hashed password
+        role=user.role
+    )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
