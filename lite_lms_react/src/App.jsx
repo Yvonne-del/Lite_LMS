@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from "./pages/Register";
 import Dashboard from './pages/Dashboard';
 
+
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" />;
@@ -18,11 +19,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        {/*<Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-        <Route path="/courses/:id" element={<ProtectedRoute><CourseDetails /></ProtectedRoute>} />
-        <Route path="/assignments/:id" element={<ProtectedRoute><Assignment /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} /> */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        
+        {/* Sub-routes for courses */}
+        <Route path="/dashboard/courses/:id/lessons" element={<LessonsPage />} />
+        <Route path="/dashboard/courses/:id/assignments" element={<AssignmentsPage />} />
+        <Route path="/dashboard/courses/:id/students" element={<StudentsPage />} />
       </Routes>
     </BrowserRouter>
   );
