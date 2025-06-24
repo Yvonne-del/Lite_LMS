@@ -1,15 +1,31 @@
-// src/pages/Login.js
 import React, { useState } from 'react';
+import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    console.log('Login submitted:', { email, password });
-    // Backend connection 
+
+    try {
+      const response = await api.post('/login', {
+        email,
+        password,
+      });
+
+      // Save token, role, name (if included)
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', response.data.role);
+      localStorage.setItem('name', response.data.name);
+
+      navigate('/dashboard');
+    } catch (err) {
+      alert(err.response?.data?.error || 'Login failed');
+    }
   }
 
   return (

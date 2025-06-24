@@ -1,6 +1,9 @@
 // src/pages/Register.js
 import React, { useState } from 'react';
 import './Register.css';
+import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
+
 
 function Register() {
   const [name, setName] = useState('');
@@ -8,8 +11,9 @@ function Register() {
   const [role, setRole] = useState('student');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -17,10 +21,23 @@ function Register() {
       return;
     }
 
-    console.log('Register submitted:', {
-      name, email, role, password,
-    });
-    // Later send to backend
+    try {
+      const response = await api.post('/register', {
+        name,
+        email,
+        role,
+        password,
+      });
+
+      // Save token and role
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', role);
+      localStorage.setItem('name', name);
+
+      navigate('/dashboard'); // Redirect to dashboard
+    } catch (err) {
+      alert(err.response?.data?.error || 'Registration failed');
+    }
   }
 
   return (
