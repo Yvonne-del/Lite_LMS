@@ -28,10 +28,19 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
+@router.post("/login", response_model=schemas.UserOut)
+def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if not db_user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    if db_user.password != user.password:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    return db_user
+
 #======COURSES======
 @router.post("/courses", response_model=schemas.CourseOut)
 def create_course(course: schemas.CourseCreate, db: Session = Depends(get_db)):
-    new_course = models.Course(course.dict())
+    new_course = models.Course(**course.model_dump())
     db.add(new_course)
     db.commit()
     db.refresh(new_course)
