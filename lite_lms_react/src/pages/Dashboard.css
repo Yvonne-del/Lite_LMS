@@ -1,0 +1,33 @@
+.dashboard {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 30px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.dashboard h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.dashboard p {
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+.dashboard-section h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.dashboard-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.dashboard-section li {
+  margin-bottom: 12px;
+  padding-left: 10px;
+}

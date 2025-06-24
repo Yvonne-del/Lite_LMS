@@ -3,6 +3,9 @@ import React from 'react';
 import './Dashboard.css';
 
 function Dashboard() {
+  // Simulate role from localStorage (in real app, use state/context)
+  const role = localStorage.getItem("role") || "student"; // fallback for demo
+  const name = localStorage.getItem("name") || "User";
 
   return (
     <div className="dashboard">
