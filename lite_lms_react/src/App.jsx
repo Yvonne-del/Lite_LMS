@@ -4,7 +4,9 @@ import LandingPage from "./pages/LandingPage";
 import Login from './pages/Login';
 import Register from "./pages/Register";
 import Dashboard from './pages/Dashboard';
-
+import LessonsPage from "./components/LessonsPage";
+import AssignmentsPage from "./components/AssignmentsPage";
+import StudentsPage from "./components/StudentsPage";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
