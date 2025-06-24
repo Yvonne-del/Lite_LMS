@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './LandingHeader.css'; // optional styling
+
 
 function LandingHeader() {
   return (

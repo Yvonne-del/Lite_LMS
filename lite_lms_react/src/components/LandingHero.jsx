@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './LandingHero.css'; // optional styling
 
 function LandingHero() {
   return (
