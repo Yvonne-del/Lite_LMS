@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import Login from './pages/Login';
 import Register from "./pages/Register";
-// import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard';
 // // ... other imports
 
 function ProtectedRoute({ children }) {
@@ -18,12 +18,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-        <Route path="/courses/:id" element={<ProtectedRoute><CourseDetails /></ProtectedRoute>} />
-        <Route path="/assignments/:id" element={<ProtectedRoute><Assignment /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<Dashboard />}/>
       </Routes>
     </BrowserRouter>
   );
