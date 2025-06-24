@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from auth import verify_password, create_access_token,decode_access_token
 from sqlalchemy.orm import Session
 from server import models, schemas
 from server.database import SessionLocal, engine
-from typing import List
+from typing import List 
 #Python 3.8 does not support list[T]. That feature (PEP 585) was introduced in Python 3.9.
 models.Base.metadata.create_all(bind=engine)
 
@@ -28,14 +30,15 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-@router.post("/login", response_model=schemas.UserOut)
+@router.post("/login")
 def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if not db_user:
+    if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    if db_user.password != user.password:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-    return db_user
+
+    token = create_access_token(data={"sub": db_user.email})
+    return {"access_token": token, "token_type": "bearer"}
+
 
 #======COURSES======
 @router.post("/courses", response_model=schemas.CourseOut)
@@ -60,7 +63,7 @@ def get_course(course_id: int, db: Session = Depends(get_db)):
 #========LESSONS=========
 @router.post("/lessons", response_model=schemas.LessonOut)
 def create_lesson(lesson: schemas.LessonCreate, db: Session = Depends(get_db)):
-    new_lesson = models.Lesson(**lesson.dict())
+    new_lesson = models.Lesson(**lesson.model_dump())
     db.add(new_lesson)
     db.commit()
     db.refresh(new_lesson)
@@ -76,7 +79,7 @@ def get_lesson(lesson_id: int, db: Session = Depends(get_db)):
 #=======ASSIGNMENTS=======
 @router.post("/assignments", response_model=schemas.AssignmentOut)
 def create_assignment(assignment: schemas.AssignmentCreate, db: Session = Depends(get_db)):
-    new_assignment = models.Assignment(**assignment.dict())
+    new_assignment = models.Assignment(**assignment.model_dump())
     db.add(new_assignment)
     db.commit()
     db.refresh(new_assignment)
@@ -94,7 +97,7 @@ def get_assignment(assignment_id: int, db: Session = Depends(get_db)):
 
 @router.post("/submissions", response_model=schemas.SubmissionOut)
 def submit_assignment(submission: schemas.SubmissionCreate, db: Session = Depends(get_db)):
-    new_submission = models.Submission(**submission.dict())
+    new_submission = models.Submission(**submission.model_dump())
     db.add(new_submission)
     db.commit()
     db.refresh(new_submission)

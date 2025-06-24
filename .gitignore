@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env
+.venv/
+ENV/
+env.bak/
+*.env
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Database files
+*.sqlite3
+*.db
+
+# Logs and caches
+*.log
+*.pid
+*.cache/
+*.coverage
+htmlcov/
+coverage.xml
+
+# Migrations
+alembic/
+migrations/
+
+# Test outputs
+pytest_cache/
+.tox/
+.nox/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# MyPy, Pyright, Pylint
+.mypy_cache/
+.pyright/
+.pylint.d/
+
+# FastAPI CLI artifacts
+__pypackages__/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Pytest, unittest artifacts
+.pytest_cache/
+
+# Compiled files
+*.so
+*.pyd
+*.dll
