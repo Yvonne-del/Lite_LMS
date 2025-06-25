@@ -4,8 +4,8 @@ import LandingPage from "./pages/LandingPage";
 import Login from './pages/Login';
 import Register from "./pages/Register";
 import Dashboard from './pages/Dashboard';
-import LessonsPage from "./components/LessonsPage";
-import AssignmentsPage from "./components/AssignmentsPage";
+import LessonsPage from "./components/Lessons";
+import AssignmentsPage from "./components/Assignments";
 import StudentsPage from "./components/StudentsPage";
 
 function ProtectedRoute({ children }) {
