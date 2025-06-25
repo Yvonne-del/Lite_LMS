@@ -20,7 +20,7 @@ class UserOut(UserBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 #------courses-------
 class CourseBase(BaseModel):
@@ -36,7 +36,7 @@ class CourseOut(CourseBase):
     teacher_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 #------lessons-------
 class LessonBase(BaseModel):
@@ -52,7 +52,7 @@ class LessonOut(LessonBase):
     course_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 #------assignments-------
 class AssignmentBase(BaseModel):
@@ -67,7 +67,7 @@ class AssignmentOut(AssignmentBase):
     course_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 #------submissions-------
 
@@ -85,4 +85,4 @@ class SubmissionOut(SubmissionBase):
     timestamp: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
