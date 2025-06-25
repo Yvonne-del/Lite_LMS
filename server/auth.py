@@ -1,7 +1,10 @@
 # app/auth.py
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
+from typing import Optional, Dict
 from .config import config
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -31,3 +34,33 @@ def decode_access_token(token: str):
         return payload.get("sub")
     except JWTError:
         return None
+
+# === OAuth2 scheme for FastAPI ===
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, str]:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        role: str = payload.get("role")
+        if email is None or role is None:
+            raise credentials_exception
+        return {"email": email, "role": role}
+    except JWTError:
+        raise credentials_exception
+    
+# === Role-based access control dependencies ===
+def require_teacher(current_user: dict = Depends(get_current_user)) -> dict:
+    if current_user["role"] != "teacher":
+        raise HTTPException(status_code=403, detail="Only teachers are allowed")
+    return current_user
+
+def require_student(current_user: dict = Depends(get_current_user)) -> dict:
+    if current_user["role"] != "student":
+        raise HTTPException(status_code=403, detail="Only students are allowed")
+    return current_user

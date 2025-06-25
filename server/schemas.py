@@ -19,9 +19,9 @@ class UserLogin(BaseModel):
 class UserOut(UserBase):
     id: int
 
-    class Config:
-        from_attributes = True
-
+    model_config = {
+        "from_attributes" : True
+    }
 #------courses-------
 class CourseBase(BaseModel):
     name: str
@@ -35,9 +35,9 @@ class CourseOut(CourseBase):
     id: int
     teacher_id: int
 
-    class Config:
-        from_attributes = True
-
+    model_config = {
+        "from_attributes" : True
+    }
 #------lessons-------
 class LessonBase(BaseModel):
     title: str
@@ -51,9 +51,9 @@ class LessonOut(LessonBase):
     id: int
     course_id: int
 
-    class Config:
-        from_attributes = True
-
+model_config = {
+        "from_attributes" : True
+    }
 #------assignments-------
 class AssignmentBase(BaseModel):
     title: str
@@ -66,9 +66,9 @@ class AssignmentOut(AssignmentBase):
     id: int
     course_id: int
 
-    class Config:
-        from_attributes = True
-
+    model_config = {
+        "from_attributes" : True
+    }
 #------submissions-------
 
 class SubmissionBase(BaseModel):
@@ -84,5 +84,6 @@ class SubmissionOut(SubmissionBase):
     assignment_id: int
     timestamp: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes" : True
+    }

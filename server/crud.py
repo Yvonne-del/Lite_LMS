@@ -16,7 +16,7 @@ def create_user(db: Session, user: schemas.UserCreate):
 # ========== COURSES ==========
 
 def create_course(db: Session, course: schemas.CourseCreate):
-    new_course = models.Course(**course.dict())
+    new_course = models.Course(**course.model_dump())
     db.add(new_course)
     db.commit()
     db.refresh(new_course)
@@ -31,7 +31,7 @@ def get_course_by_id(db: Session, course_id: int):
 # ========== LESSONS ==========
 
 def create_lesson(db: Session, lesson: schemas.LessonCreate):
-    new_lesson = models.Lesson(**lesson.dict())
+    new_lesson = models.Lesson(**lesson.model_dump())
     db.add(new_lesson)
     db.commit()
     db.refresh(new_lesson)
@@ -43,7 +43,7 @@ def get_lesson_by_id(db: Session, lesson_id: int):
 # ========== ASSIGNMENTS ==========
 
 def create_assignment(db: Session, assignment: schemas.AssignmentCreate):
-    new_assignment = models.Assignment(**assignment.dict())
+    new_assignment = models.Assignment(**assignment.model_dump())
     db.add(new_assignment)
     db.commit()
     db.refresh(new_assignment)
@@ -55,7 +55,7 @@ def get_assignment_by_id(db: Session, assignment_id: int):
 # ========== SUBMISSIONS ==========
 
 def create_submission(db: Session, submission: schemas.SubmissionCreate):
-    new_submission = models.Submission(**submission.dict())
+    new_submission = models.Submission(**submission.model_dump())
     db.add(new_submission)
     db.commit()
     db.refresh(new_submission)
