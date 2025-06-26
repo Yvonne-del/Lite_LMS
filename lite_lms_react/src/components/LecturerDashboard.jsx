@@ -48,7 +48,20 @@ const LecturerDashboard = () => {
     }
   };
 
+  // Add inside LecturerDashboard component:
+
+const handleUpdateCourse = (updatedCourse) => {
+  setCourses(courses.map(c => c.id === updatedCourse.id ? updatedCourse : c));
+};
+
+const handleDeleteCourse = (id) => {
+  setCourses(courses.filter(c => c.id !== id));
+};
+
+
   return (
+    <>
+    <LecturerNavbar />
     <div style={{ padding: '20px' }}>
       <h1>Welcome, Lecturer</h1>
 
@@ -80,10 +93,17 @@ const LecturerDashboard = () => {
       <h2>My Courses</h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
         {courses.map(course => (
-          <CourseCard key={course.id} course={course} />
+          <CourseCard
+            key={course.id}
+            course={course}
+            onUpdate={handleUpdateCourse}
+            onDelete={handleDeleteCourse}
+          />
+
         ))}
       </div>
     </div>
+    </>
   );
 };
 
