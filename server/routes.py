@@ -80,6 +80,15 @@ def get_course(course_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Course not found")
     return course
 
+@router.delete("/courses/{course_id}")
+def delete_course(course_id: int, db: Session = Depends(get_db)):
+    course = db.query(models.Course).filter(models.Course.id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    db.delete(course)
+    db.commit()
+    return {"detail": f"Course {course_id} has been deleted successfully."}
+
 #========LESSONS=========
 @router.post("/lessons", response_model=schemas.LessonOut)
 def create_lesson(
@@ -137,8 +146,6 @@ def create_submission(
     db.commit()
     db.refresh(new_submission)
     return new_submission
-
-from typing import List
 
 @router.get("/submission", response_model=List[schemas.SubmissionOut])
 def get_submissions(
