@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from .auth import verify_password, create_access_token,decode_access_token, require_student, require_teacher
+from .auth import verify_password, create_access_token,decode_access_token, require_student, require_lecturer
 from sqlalchemy.orm import Session
 from server import models, schemas
 from server.database import SessionLocal, engine
@@ -60,7 +60,7 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
 @router.post("/courses", response_model=schemas.CourseOut)
 def create_course(
     course: schemas.CourseCreate,
-    # _=Depends(require_teacher), #role check
+    _=Depends(require_lecturer), #role check
     db: Session = Depends(get_db)         #db session  
 ):
     new_course = models.Course(**course.model_dump())
@@ -93,7 +93,7 @@ def delete_course(course_id: int, db: Session = Depends(get_db)):
 @router.post("/lessons", response_model=schemas.LessonOut)
 def create_lesson(
     lesson: schemas.LessonCreate,
-    _=Depends(require_teacher),   #Just triggering the dependency
+    _=Depends(require_lecturer),   #Just triggering the dependency
     db: Session = Depends(get_db)           
 ):
     new_lesson = models.Lesson(**lesson.model_dump())
@@ -117,7 +117,7 @@ def get_lesson(lesson_id: int, db: Session = Depends(get_db)):
 @router.post("/assignments", response_model=schemas.AssignmentOut)
 def create_assignment(
 assignment: schemas.AssignmentCreate,
-    _=Depends(require_teacher),   #Just triggering the dependency
+    _=Depends(require_lecturer),   #Just triggering the dependency
     db: Session = Depends(get_db)           
 ):
     new_assignment = models.Assignment(**assignment.model_dump())
@@ -149,14 +149,14 @@ def create_submission(
 
 @router.get("/submission", response_model=List[schemas.SubmissionOut])
 def get_submissions(
-    _=Depends(require_teacher),
+    _=Depends(require_lecturer),
     db: Session = Depends(get_db)
 ):
     return db.query(models.Submission).all()
 
 @router.get("/submissions/{submission_id}", response_model=schemas.SubmissionOut)
 def get_submission(submission_id: int, 
-        _=Depends(require_teacher),
+        _=Depends(require_lecturer),
         db: Session = Depends(get_db)):
     submission = db.get(models.Submission, submission_id)
     if not submission:
