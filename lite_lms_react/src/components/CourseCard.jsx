@@ -1,8 +1,8 @@
-import React from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const CourseCard = ({ course, onUpdate, onDelete }) => {
-  const [editing, setEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     title: course.title,
     description: course.description
@@ -10,10 +10,10 @@ const CourseCard = ({ course, onUpdate, onDelete }) => {
 
   const token = localStorage.getItem("token");
 
-  const handleUpdate = async () => {
+  const handleSave = async () => {
     try {
       const res = await fetch(`http://127.0.0.1:8000/courses/${course.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
@@ -24,78 +24,122 @@ const CourseCard = ({ course, onUpdate, onDelete }) => {
       if (res.ok) {
         const updated = await res.json();
         onUpdate(updated);
-        setEditing(false);
+        setIsEditing(false);
       }
     } catch (err) {
-      console.error('Update failed', err);
+      console.error("Error updating course:", err);
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      const res = await fetch(`http://127.0.0.1:8000/courses/${course.id}`, {
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this course?")) {
+      fetch(`http://127.0.0.1:8000/courses/${course.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (res.ok) {
-        onDelete(course.id);
-      }
-    } catch (err) {
-      console.error('Delete failed', err);
+      })
+        .then(res => {
+          if (res.ok) {
+            onDelete(course.id);
+          }
+        })
+        .catch(console.error);
     }
   };
 
   return (
-    <div style={{
-      border: '1px solid #ccc',
-      padding: '15px',
-      borderRadius: '10px',
-      backgroundColor: '#f9f9f9',
-      width: '280px'
-    }}>
-      {editing ? (
+    <div style={cardStyle}>
+      {isEditing ? (
         <>
           <input
             type="text"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            style={{ width: '100%', marginBottom: 5 }}
+            style={inputStyle}
           />
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            style={{ width: '100%', marginBottom: 5 }}
+            style={inputStyle}
           />
-          <button onClick={handleUpdate} style={btn}>Save</button>
-          <button onClick={() => setEditing(false)} style={btn}>Cancel</button>
+          <button onClick={handleSave} style={saveBtn}>Save</button>
+          <button onClick={() => setIsEditing(false)} style={cancelBtn}>Cancel</button>
         </>
       ) : (
         <>
           <h3>{course.title}</h3>
           <p>{course.description}</p>
-          <p><strong>Enrolled:</strong> {course.enrolled_students || 0}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-            <Link to={`/dashboard/courses/${course.id}/lessons`} style={btn}>Lessons</Link>
-            <Link to={`/dashboard/courses/${course.id}/assignments`} style={btn}>Assignments</Link>
-            <Link to={`/dashboard/courses/${course.id}/students`} style={btn}>Students</Link>
-            <button onClick={() => setEditing(true)} style={btn}>Edit</button>
-            <button onClick={handleDelete} style={btn}>Delete</button>
-          </div>
+          <Link to={`/dashboard/courses/${course.id}/lessons`} style={linkBtn}>Lessons</Link>
+          <Link to={`/dashboard/courses/${course.id}/assignments`} style={linkBtn}>Assignments</Link>
+          <Link to={`/dashboard/courses/${course.id}/students`} style={linkBtn}>Students</Link>
+          <br />
+          <button onClick={() => setIsEditing(true)} style={editBtn}>Edit</button>
+          <button onClick={handleDelete} style={deleteBtn}>Delete</button>
         </>
       )}
     </div>
   );
 };
 
+const cardStyle = {
+  border: '1px solid #ccc',
+  padding: '15px',
+  borderRadius: '8px',
+  width: '300px'
+};
+
+const inputStyle = {
+  width: '100%',
+  marginBottom: '8px',
+  padding: '8px',
+  borderRadius: '4px',
+  border: '1px solid #ccc'
+};
+
 const linkBtn = {
-  backgroundColor: '#2196F3',
+  display: 'inline-block',
+  margin: '5px 5px 5px 0',
+  backgroundColor: '#007bff',
   color: 'white',
-  padding: '6px',
+  padding: '6px 10px',
+  borderRadius: '4px',
+  textDecoration: 'none'
+};
+
+const editBtn = {
+  backgroundColor: '#ffc107',
+  color: 'black',
+  marginRight: '10px',
+  padding: '6px 10px',
   border: 'none',
   borderRadius: '4px',
-  marginTop: '5px',
-  textDecoration: 'none',
+  cursor: 'pointer'
+};
+
+const deleteBtn = {
+  backgroundColor: '#dc3545',
+  color: 'white',
+  padding: '6px 10px',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer'
+};
+
+const saveBtn = {
+  backgroundColor: '#28a745',
+  color: 'white',
+  marginRight: '10px',
+  padding: '6px 10px',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer'
+};
+
+const cancelBtn = {
+  backgroundColor: '#6c757d',
+  color: 'white',
+  padding: '6px 10px',
+  border: 'none',
+  borderRadius: '4px',
   cursor: 'pointer'
 };
 
