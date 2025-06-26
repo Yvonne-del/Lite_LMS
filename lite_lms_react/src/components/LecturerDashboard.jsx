@@ -76,14 +76,14 @@ const LecturerDashboard = () => {
             <input
               type="text"
               placeholder="Course Title"
-              value={newCourse.title}
-              onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
+              value={newCourse.name}
+              onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
               style={inputStyle}
             />
             <br />
             <textarea
-              placeholder="Course Description"
-              value={newCourse.description}
+              placeholder="Course Code"
+              value={newCourse.code}
               onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
               style={inputStyle}
             />
