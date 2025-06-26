@@ -60,7 +60,7 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
 @router.post("/courses", response_model=schemas.CourseOut)
 def create_course(
     course: schemas.CourseCreate,
-    _=Depends(require_teacher), #role check
+    # _=Depends(require_teacher), #role check
     db: Session = Depends(get_db)         #db session  
 ):
     new_course = models.Course(**course.model_dump())
