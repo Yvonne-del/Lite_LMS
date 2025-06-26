@@ -6,6 +6,8 @@ from server import models, schemas
 from server.database import SessionLocal, engine
 from typing import List 
 from server.auth import get_password_hash
+from server.schemas import UserLogin
+
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -42,6 +44,7 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
+    print("Got user login:", user.email)  # ✅ for testing
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid email or password")

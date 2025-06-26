@@ -16,7 +16,7 @@ class User(Base):
     role = Column(String, default="student")  # student or lecturer
 
     submissions = relationship("Submission", back_populates="user")
-    courses = relationship("Course", back_populates="lecturer")
+    courses = relationship("Course", back_populates="teacher")
 
 class Course(Base):
     __tablename__ = "courses"

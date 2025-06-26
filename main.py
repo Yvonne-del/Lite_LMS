@@ -22,6 +22,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/ping")
+def ping():
+    return {"message": "pong"}
 
 # Register all routes
 app.include_router(router)

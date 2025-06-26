@@ -37,65 +37,65 @@ const LecturerDashboard = () => {
   };
 
   const handleCreateCourse = async () => {
-  // Get user from localStorage safely
-  const userString = localStorage.getItem("user");
+    // Get user from localStorage safely
+    const userString = localStorage.getItem("user");
 
-  if (!userString) {
-    alert("User not found. Please log in again.");
-    return;
-  }
-
-  let user;
-  try {
-    user = JSON.parse(userString);
-  } catch (error) {
-    alert("Failed to read user info. Please log in again.");
-    return;
-  }
-
-  const teacher_id = user?.id;
-
-  if (!teacher_id) {
-    alert("Teacher ID not found. Please log in again.");
-    return;
-  }
-
-  const payload = {
-    name: newCourse.name,
-    code: newCourse.code,
-    semester: parseInt(newCourse.semester),
-    teacher_id: teacher_id,
-  };
-
-  console.log("📦 Sending course data:", payload);
-
-  const token = localStorage.getItem("token");
-
-  try {
-    const res = await fetch("http://127.0.0.1:8000/courses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      const added = await res.json();
-      setCourses([...courses, added]);
-      setNewCourse({ name: "", code: "", semester: "" });
-      setFormVisible(false);
-      alert("✅ Course created successfully.");
-    } else {
-      const error = await res.json();
-      console.error("❌ Failed to create course:", error);
-      alert("Failed to create course: " + (error?.detail || "Unknown error"));
+    if (!userString) {
+      alert("User not found. Please log in again.");
+      return;
     }
-  } catch (err) {
-    console.error("🔥 Error creating course:", err);
-    alert("Network error while creating course.");
-  }
+
+    let user;
+    try {
+      user = JSON.parse(userString);
+    } catch (error) {
+      alert("Failed to read user info. Please log in again.");
+      return;
+    }
+
+    const teacher_id = user?.id;
+
+    if (!teacher_id) {
+      alert("Teacher ID not found. Please log in again.");
+      return;
+    }
+
+    const payload = {
+      name: newCourse.name,
+      code: newCourse.code,
+      semester: parseInt(newCourse.semester),
+      teacher_id: teacher_id,
+    };
+
+    console.log("📦 Sending course data:", payload);
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/courses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const added = await res.json();
+        setCourses([...courses, added]);
+        setNewCourse({ name: "", code: "", semester: "" });
+        setFormVisible(false);
+        alert("✅ Course created successfully.");
+      } else {
+        const error = await res.json();
+        console.error("❌ Failed to create course:", error);
+        alert("Failed to create course: " + (error?.detail || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("🔥 Error creating course:", err);
+      alert("Network error while creating course.");
+    }
   };
 
 

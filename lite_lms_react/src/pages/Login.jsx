@@ -17,18 +17,28 @@ function Login() {
       password,
     });
 
-    const { access_token, user } = response.data;
+    // Check if response contains access_token
+    if (response.status === 200 && response.data.access_token) {
+      const { access_token, id, name, role } = response.data;
 
-    localStorage.setItem('token', access_token);
-    localStorage.setItem('user', JSON.stringify(user)); // ✅ this stores user.id
-    localStorage.setItem('role', user.role);            // optional
-    localStorage.setItem('name', user.name);            // optional
+      localStorage.setItem('token', response.data.access_token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
 
-    navigate('/dashboard');
+
+      // Navigate to dashboard
+      navigate('/dashboard');
+    } else {
+      alert('Unexpected response from server.');
+      console.error('Unexpected login response:', response);
+    }
   } catch (err) {
-    alert(err.response?.data?.error || 'Login failed');
+    // Show actual backend message
+    const msg = err.response?.data?.detail || 'Login failed';
+    console.error('Login error:', err);
+    alert(msg);
   }
   }
+
 
 
   return (
