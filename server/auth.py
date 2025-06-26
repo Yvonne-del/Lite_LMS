@@ -55,9 +55,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, str]:
         raise credentials_exception
     
 # === Role-based access control dependencies ===
-def require_teacher(current_user: dict = Depends(get_current_user)) -> dict:
-    if current_user["role"] != "teacher":
-        raise HTTPException(status_code=403, detail="Only teachers are allowed")
+def require_lecturer(current_user: dict = Depends(get_current_user)) -> dict:
+    if current_user["role"] != "lecturer":
+        raise HTTPException(status_code=403, detail="Only lecturer are allowed")
     return current_user
 
 def require_student(current_user: dict = Depends(get_current_user)) -> dict:
