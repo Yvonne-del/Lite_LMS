@@ -9,24 +9,27 @@ function Login() {
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const response = await api.post('/login', {
-        email,
-        password,
-      });
+  try {
+    const response = await api.post('/login', {
+      email,
+      password,
+    });
 
-      // Save token, role, name (if included)
-      localStorage.setItem('token', response.data.access_token);
-      localStorage.setItem('role', response.data.role);
-      localStorage.setItem('name', response.data.name);
+    const { access_token, user } = response.data;
 
-      navigate('/dashboard');
-    } catch (err) {
-      alert(err.response?.data?.error || 'Login failed');
-    }
+    localStorage.setItem('token', access_token);
+    localStorage.setItem('user', JSON.stringify(user)); // ✅ this stores user.id
+    localStorage.setItem('role', user.role);            // optional
+    localStorage.setItem('name', user.name);            // optional
+
+    navigate('/dashboard');
+  } catch (err) {
+    alert(err.response?.data?.error || 'Login failed');
   }
+  }
+
 
   return (
     <div className="login-container">

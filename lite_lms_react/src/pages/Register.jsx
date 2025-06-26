@@ -14,31 +14,40 @@ function Register() {
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-
-    try {
-      const response = await api.post('/register', {
-        name,
-        email,
-        role,
-        password,
-      });
-
-      // Save token and role
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('role', role);
-      localStorage.setItem('name', name);
-
-      navigate('/dashboard'); // Redirect to dashboard
-    } catch (err) {
-      alert(err.response?.data?.error || 'Registration failed');
-    }
+  if (password !== confirmPassword) {
+    alert("Passwords do not match!");
+    return;
   }
+
+  try {
+    // Step 1: Register user
+    const response = await api.post('/register', {
+      name,
+      email,
+      role,
+      password,
+    });
+
+    // Step 2: Immediately log in the user
+    const loginRes = await api.post('/login', {
+      email,
+      password,
+    });
+
+    const { access_token, user } = loginRes.data;
+
+    // Step 3: Save token and full user info
+    localStorage.setItem('token', access_token);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    navigate('/dashboard'); // Redirect to dashboard
+  } catch (err) {
+    alert(err.response?.data?.error || 'Registration or login failed');
+  }
+  }
+
 
   return (
     <div className="register-container">
