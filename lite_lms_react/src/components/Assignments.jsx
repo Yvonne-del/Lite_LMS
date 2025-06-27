@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import LecturerLayout from './LecturerLayout';
+import { Link } from 'react-router-dom';
 
 const Assignments= () => {
   const { id } = useParams();
@@ -19,23 +20,31 @@ const Assignments= () => {
   }, [id]);
 
   const handleAddAssignment = async () => {
-    if (!window.confirm("Add this assignment?")) return;
+  if (!window.confirm("Add this assignment?")) return;
 
-    const res = await fetch(`http://127.0.0.1:8000/courses/${id}/assignments`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(formData)
-    });
-
-    if (res.ok) {
-      const added = await res.json();
-      setAssignments([...assignments, added]);
-      setFormData({ title: '', description: '', due_date: '' });
-    }
+  const payload = {
+    title: formData.title,
+    description: formData.description,
+    due_date: formData.due_date || null,
+    course_id: parseInt(id)
   };
+
+  const res = await fetch(`http://127.0.0.1:8000/courses/${id}/assignments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (res.ok) {
+    const added = await res.json();
+    setAssignments([...assignments, added]);
+    setFormData({ title: '', description: '', due_date: '' });
+  }
+  };
+
 
   const handleDelete = async (assignmentId) => {
     if (!window.confirm("Delete this assignment?")) return;
@@ -51,20 +60,36 @@ const Assignments= () => {
   };
 
   const handleSave = async (assignment) => {
-    const res = await fetch(`http://127.0.0.1:8000/assignments/${assignment.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(assignment)
-    });
+    const payload = {
+      title: assignment.title,
+      description: assignment.description,
+      due_date: assignment.due_date || null, // optional field
+    };
 
-    if (res.ok) {
-      const updated = await res.json();
-      setAssignments(assignments.map(a => a.id === updated.id ? updated : a));
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/assignments/${assignment.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setAssignments(assignments.map(a => a.id === updated.id ? updated : a));
+      } else {
+        const error = await res.json();
+        console.error("❌ Save failed:", error);
+        alert("Update failed: " + (error.detail || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("🔥 Error during assignment update:", err);
+      alert("Network error while updating assignment.");
     }
   };
+
 
   return (
     <LecturerLayout>
@@ -90,7 +115,7 @@ const Assignments= () => {
         style={inputStyle}
       />
       <button onClick={handleAddAssignment} style={btnStyle}>Add Assignment</button>
-
+    
       <hr />
 
       {assignments.map((a) => (
@@ -120,6 +145,11 @@ const Assignments= () => {
           />
           <button onClick={() => handleSave(a)} style={btnStyle}>Save</button>
           <button onClick={() => handleDelete(a.id)} style={deleteBtn}>Delete</button>
+          
+          <Link to={`/assignments/${a.id}/submissions`}>
+            <button style={btnStyle}>View Submissions</button>
+          </Link>
+
         </div>
       ))}
     </LecturerLayout>

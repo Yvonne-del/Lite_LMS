@@ -1,10 +1,16 @@
-# models.py
-
-from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, Text, DateTime, Boolean
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
+from sqlalchemy import Date
 
 Base = declarative_base()
+
+enrollments = Table(
+    "enrollments",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id")),
+    Column("course_id", Integer, ForeignKey("courses.id"))
+)
 
 class User(Base):
     __tablename__ = "users"
@@ -17,6 +23,12 @@ class User(Base):
 
     submissions = relationship("Submission", back_populates="user")
     courses = relationship("Course", back_populates="teacher")
+    courses_enrolled = relationship(
+        "Course",
+        secondary="enrollments",
+        back_populates="students"
+    )
+
 
 class Course(Base):
     __tablename__ = "courses"
@@ -30,6 +42,12 @@ class Course(Base):
     teacher = relationship("User", back_populates="courses")
     assignments = relationship("Assignment", back_populates="course")
     lessons = relationship("Lesson", back_populates="course") 
+    students = relationship(
+        "User",
+        secondary="enrollments",
+        back_populates="courses_enrolled"
+    )
+
 
 class Lesson(Base):
     __tablename__ = "lessons"
@@ -48,6 +66,7 @@ class Assignment(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     description = Column(Text)
+    due_date = Column(Date)
     course_id = Column(Integer, ForeignKey("courses.id"))
 
     course = relationship("Course", back_populates="assignments")
@@ -59,6 +78,7 @@ class Submission(Base):
     id = Column(Integer, primary_key=True)
     file_path = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
+    reviewed = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"))
     assignment_id = Column(Integer, ForeignKey("assignments.id"))
 

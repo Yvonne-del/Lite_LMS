@@ -1,39 +1,63 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import LecturerLayout from './LecturerLayout';
 
 const StudentsPage = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // course ID
   const [students, setStudents] = useState([]);
+  const [error, setError] = useState(null);
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
     fetch(`http://127.0.0.1:8000/courses/${id}/students`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+      headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch students");
+        return res.json();
+      })
       .then(setStudents)
-      .catch(console.error);
+      .catch(err => {
+        console.error(err);
+        setError("Could not load students");
+      });
   }, [id]);
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Enrolled Students for Course {id}</h2>
-      {students.length === 0 ? (
+    <LecturerLayout>
+      <h2>Enrolled Students in Course {id}</h2>
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {students.length === 0 && !error && (
         <p>No students enrolled yet.</p>
-      ) : (
-        <ul>
-          {students.map((student) => (
-            <li key={student.id}>
-              {student.name} – {student.email}
-            </li>
-          ))}
-        </ul>
       )}
-    </div>
+
+      <ul style={listStyle}>
+        {students.map(student => (
+          <li key={student.id} style={cardStyle}>
+            <strong>{student.name}</strong><br />
+            Email: {student.email}<br />
+            Role: {student.role}
+          </li>
+        ))}
+      </ul>
+    </LecturerLayout>
   );
 };
 
+const cardStyle = {
+  border: '1px solid #ccc',
+  borderRadius: '6px',
+  padding: '10px',
+  margin: '10px 0',
+  listStyle: 'none'
+};
+
+const listStyle = {
+  padding: 0
+};
+
 export default StudentsPage;
+

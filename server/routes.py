@@ -7,7 +7,8 @@ from server.database import SessionLocal, engine
 from typing import List 
 from server.auth import get_password_hash
 from server.schemas import UserLogin
-
+from fastapi import UploadFile, File, Form
+from typing import Optional
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -169,3 +170,169 @@ def get_submission(submission_id: int,
     if not submission:
         raise HTTPException(status_code=404, detail="Submission not found")
     return submission
+
+# GET course-specific lessons
+@router.get("/courses/{course_id}/lessons", response_model=List[schemas.LessonOut])
+def get_course_lessons(course_id: int, db: Session = Depends(get_db)):
+    lessons = db.query(models.Lesson).filter(models.Lesson.course_id == course_id).all()
+    return lessons
+
+# GET course-specific assignments
+@router.get("/courses/{course_id}/assignments", response_model=List[schemas.AssignmentOut])
+def get_course_assignments(course_id: int, db: Session = Depends(get_db)):
+    assignments = db.query(models.Assignment).filter(models.Assignment.course_id == course_id).all()
+    return assignments
+
+# GET students in a course
+@router.get("/courses/{course_id}/students", response_model=List[schemas.UserOut])
+def get_course_students(course_id: int, db: Session = Depends(get_db)):
+    course = db.query(models.Course).get(course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    return course.students
+
+from fastapi import UploadFile, File, Form
+
+@router.post("/courses/{course_id}/lessons", response_model=schemas.LessonOut)
+def create_lesson(
+    course_id: int,
+    title: str = Form(...),
+    content: str = Form(...),
+    video: UploadFile = File(None),
+    _=Depends(require_lecturer),
+    db: Session = Depends(get_db)
+):
+    # Save the file if it exists
+    video_url = None
+    if video:
+        file_location = f"videos/{video.filename}"
+        with open(file_location, "wb") as f:
+            f.write(video.file.read())
+        video_url = f"/{file_location}"
+
+    new_lesson = models.Lesson(
+        title=title,
+        content=content,
+        course_id=course_id,
+        video_url=video_url
+    )
+    db.add(new_lesson)
+    db.commit()
+    db.refresh(new_lesson)
+    return new_lesson
+
+
+@router.post("/courses/{course_id}/assignments", response_model=schemas.AssignmentOut)
+def create_assignment_for_course(
+    course_id: int,
+    assignment: schemas.AssignmentCreate,
+    _=Depends(require_lecturer),
+    db: Session = Depends(get_db)
+):
+    new_assignment = models.Assignment(
+        title=assignment.title,
+        description=assignment.description,
+        due_date=assignment.due_date,
+        course_id=course_id
+    )
+    db.add(new_assignment)
+    db.commit()
+    db.refresh(new_assignment)
+    return new_assignment
+
+# DELETE lesson
+@router.delete("/lessons/{lesson_id}")
+def delete_lesson(
+    lesson_id: int,
+    _=Depends(require_lecturer),
+    db: Session = Depends(get_db)
+):
+    lesson = db.query(models.Lesson).get(lesson_id)
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    db.delete(lesson)
+    db.commit()
+    return {"detail": f"Lesson {lesson_id} deleted."}
+
+
+from fastapi import UploadFile, File, Form
+
+@router.patch("/lessons/{lesson_id}", response_model=schemas.LessonOut)
+def update_lesson(
+    lesson_id: int,
+    title: Optional[str] = Form(None),
+    content: Optional[str] = Form(None),
+    video: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db),
+    _=Depends(require_lecturer),
+):
+    lesson = db.query(models.Lesson).filter(models.Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    if title is not None:
+        lesson.title = title
+    if content is not None:
+        lesson.content = content
+    if video is not None:
+        # Save the uploaded video file and update lesson.video_url
+        filename = f"videos/{uuid.uuid4()}_{video.filename}"
+        with open(filename, "wb") as f:
+            f.write(video.file.read())
+        lesson.video_url = f"/{filename}"
+
+    db.commit()
+    db.refresh(lesson)
+    return lesson
+
+@router.patch("/assignments/{assignment_id}", response_model=schemas.AssignmentOut)
+def update_assignment(
+    assignment_id: int,
+    update_data: schemas.AssignmentBase,  # Reuse base schema
+    _=Depends(require_lecturer),
+    db: Session = Depends(get_db)
+):
+    assignment = db.query(models.Assignment).get(assignment_id)
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+
+    for field, value in update_data.model_dump(exclude_unset=True).items():
+        setattr(assignment, field, value)
+
+    db.commit()
+    db.refresh(assignment)
+    return assignment
+
+@router.get("/courses/{course_id}/students", response_model=List[schemas.UserOut])
+def get_students_in_course(course_id: int, db: Session = Depends(get_db)):
+    course = db.query(models.Course).get(course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    return course.students
+
+@router.post("/courses/{course_id}/enroll")
+def enroll_student(course_id: int, db: Session = Depends(get_db), current_user=Depends(require_student)):
+    course = db.query(models.Course).get(course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    
+    if current_user in course.students:
+        raise HTTPException(status_code=400, detail="Already enrolled")
+    
+    course.students.append(current_user)
+    db.commit()
+    return {"detail": f"Enrolled in course {course.name}"}
+
+@router.get("/assignments/{assignment_id}/submissions", response_model=List[schemas.SubmissionOut])
+def get_submissions_for_assignment(assignment_id: int, db: Session = Depends(get_db), _=Depends(require_lecturer)):
+    return db.query(models.Submission).filter(models.Submission.assignment_id == assignment_id).all()
+
+@router.patch("/submissions/{submission_id}/review", response_model=schemas.SubmissionOut)
+def mark_reviewed(submission_id: int, db: Session = Depends(get_db), _=Depends(require_lecturer)):
+    sub = db.query(models.Submission).get(submission_id)
+    if not sub:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    sub.reviewed = True
+    db.commit()
+    db.refresh(sub)
+    return sub

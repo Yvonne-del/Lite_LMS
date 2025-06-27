@@ -62,23 +62,35 @@ const Lessons = () => {
   };
 
   const handleSave = async (lesson) => {
-    try {
-      const res = await fetch(`http://127.0.0.1:8000/lessons/${lesson.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(lesson)
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setLessons(lessons.map(l => l.id === updated.id ? updated : l));
-      }
-    } catch (err) {
-      console.error("Error updating:", err);
+  try {
+    const form = new FormData();
+    form.append("title", lesson.title);
+    form.append("content", lesson.content);
+    if (lesson.newVideoFile) {
+      form.append("video", lesson.newVideoFile);
     }
+
+    const res = await fetch(`http://127.0.0.1:8000/lessons/${lesson.id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`, // ✅ NO "Content-Type" with FormData
+      },
+      body: form,
+    });
+
+    if (res.ok) {
+      const updated = await res.json();
+      setLessons(lessons.map((l) => (l.id === updated.id ? updated : l)));
+    } else {
+      const error = await res.json();
+      console.error("❌ Save failed:", error);
+      alert(error?.detail || "Save failed");
+    }
+  } catch (err) {
+    console.error("Error updating:", err);
+  }
   };
+
 
   return (
     <LecturerLayout>
@@ -124,6 +136,19 @@ const Lessons = () => {
             }
             style={inputStyle}
           />
+          
+          {/* ✅ This input lets the lecturer optionally upload a new video */}
+          <input
+            type="file"
+            accept="video/*"
+            onChange={(e) =>
+              setLessons(lessons.map(l =>
+                l.id === lesson.id ? { ...l, newVideoFile: e.target.files[0] } : l
+              ))
+            }
+            style={inputStyle}
+          />
+
           {lesson.video_url && (
             <video width="320" controls>
               <source src={lesson.video_url} />
