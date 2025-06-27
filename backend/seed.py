@@ -4,7 +4,6 @@ import models
 def seed_data():
     db = SessionLocal()
 
-    # Seed Courses (Assumes lecturers with IDs 1 and 2 exist)
     courses = [
         {"name": "Intro to Python", "code": "PY101", "semester": 1, "lecturer_id": 1},
         {"name": "Advanced Python", "code": "PY201", "semester": 2, "lecturer_id": 1},
