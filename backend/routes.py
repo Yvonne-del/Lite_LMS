@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from .auth import verify_password, create_access_token,decode_access_token, require_student, require_lecturer
 from sqlalchemy.orm import Session
-from backend import models, schemas
-from backend.database import SessionLocal, engine
+from . import models, schemas
+from . import SessionLocal, engine
 from typing import List 
-from backend.auth import get_password_hash
-
+from .auth import get_password_hash
+from.schemas import UserLogin
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -42,6 +42,7 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
+    print("Got user login:", user.email)  # ✅ for testing
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
@@ -50,9 +51,13 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
     return {
     "access_token": token,
     "token_type": "bearer",
-    "name": db_user.name,
-    "role": db_user.role
+    "user": {
+        "id": db_user.id,
+        "name": db_user.name,
+        "email": db_user.email,
+        "role": db_user.role
     }
+}
 
 
 

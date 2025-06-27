@@ -9,24 +9,37 @@ function Login() {
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const response = await api.post('/login', {
-        email,
-        password,
-      });
+  try {
+    const response = await api.post('/login', {
+      email,
+      password,
+    });
 
-      // Save token, role, name (if included)
+    // Check if response contains access_token
+    if (response.status === 200 && response.data.access_token) {
+      const { access_token, id, name, role } = response.data;
+
       localStorage.setItem('token', response.data.access_token);
-      localStorage.setItem('role', response.data.role);
-      localStorage.setItem('name', response.data.name);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
 
+
+      // Navigate to dashboard
       navigate('/dashboard');
-    } catch (err) {
-      alert(err.response?.data?.error || 'Login failed');
+    } else {
+      alert('Unexpected response from server.');
+      console.error('Unexpected login response:', response);
     }
+  } catch (err) {
+    // Show actual backend message
+    const msg = err.response?.data?.detail || 'Login failed';
+    console.error('Login error:', err);
+    alert(msg);
   }
+  }
+
+
 
   return (
     <div className="login-container">
