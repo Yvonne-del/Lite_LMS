@@ -3,10 +3,10 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from .auth import verify_password, create_access_token,decode_access_token, require_student, require_lecturer
 from sqlalchemy.orm import Session
 from . import models, schemas
-from . import SessionLocal, engine
+from .database import SessionLocal, engine
 from typing import List 
 from .auth import get_password_hash
-from.schemas import UserLogin
+from .schemas import UserLogin
 
 models.Base.metadata.create_all(bind=engine)
 
