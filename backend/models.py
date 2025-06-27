@@ -22,6 +22,7 @@ class User(Base):
     role = Column(String, default="student")  # student or lecturer
 
     submissions = relationship("Submission", back_populates="user")
+<<<<<<< HEAD:server/models.py
     courses = relationship("Course", back_populates="teacher")
     courses_enrolled = relationship(
         "Course",
@@ -29,6 +30,9 @@ class User(Base):
         back_populates="students"
     )
 
+=======
+    courses = relationship("Course", back_populates="lecturer")
+>>>>>>> c127cdb875ff156238a280c216a75b9918536a06:backend/models.py
 
 class Course(Base):
     __tablename__ = "courses"
@@ -37,9 +41,9 @@ class Course(Base):
     name = Column(String, nullable=False)
     code = Column(String, unique=True, nullable=False)
     semester = Column(Integer)
-    teacher_id = Column(Integer, ForeignKey("users.id"))
+    lecturer_id = Column(Integer, ForeignKey("users.id"))
 
-    teacher = relationship("User", back_populates="courses")
+    lecturer = relationship("User", back_populates="courses")
     assignments = relationship("Assignment", back_populates="course")
     lessons = relationship("Lesson", back_populates="course") 
     students = relationship(

@@ -2,14 +2,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from .auth import verify_password, create_access_token,decode_access_token, require_student, require_lecturer
 from sqlalchemy.orm import Session
-from server import models, schemas
-from server.database import SessionLocal, engine
+from . import models, schemas
+from .database import SessionLocal, engine
 from typing import List 
+<<<<<<< HEAD:server/routes.py
 from server.auth import get_password_hash
 from server.schemas import UserLogin
 from fastapi import UploadFile, File, Form
 from typing import Optional
 
+=======
+from .auth import get_password_hash
+from .schemas import UserLogin
+>>>>>>> c127cdb875ff156238a280c216a75b9918536a06:backend/routes.py
 
 models.Base.metadata.create_all(bind=engine)
 

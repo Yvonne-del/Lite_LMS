@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from server import models
-from server.database import engine
-from server.routes import router 
+from backend import models
+from .database import engine
+from .routes import router 
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -17,11 +17,13 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # or ["*"] for all origins (less secure)
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Health check
 @app.get("/ping")
 def ping():
     return {"message": "pong"}
