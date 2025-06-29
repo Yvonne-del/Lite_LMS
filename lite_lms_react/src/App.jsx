@@ -8,6 +8,10 @@ import LessonsPage from "./components/Lessons";
 import AssignmentsPage from "./components/Assignments";
 import StudentsPage from "./components/StudentsPage";
 import SubmissionsPage from './pages/SubmissionsPage';
+import StudentDashboard from './pages/student/StudentDashboard';
+import StudentLessons from './pages/student/StudentLessons';
+import StudentAssignments from './pages/student/StudentAssignments';
+import StudentCourses from "./pages/student/StudentCourses";
 
 
 function ProtectedRoute({ children }) {
@@ -35,6 +39,10 @@ function App() {
         <Route path="/dashboard/courses/:id/assignments" element={<AssignmentsPage />} />
         <Route path="/dashboard/courses/:id/students" element={<StudentsPage />} />
         <Route path="/assignments/:assignmentId/submissions" element={<SubmissionsPage />} />
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
+        <Route path="/student/courses/:id/lessons" element={<StudentLessons />} />
+        <Route path="/student/courses/:id/assignments" element={<StudentAssignments />} />
+        <Route path="/student/courses" element={<StudentCourses />} />
       </Routes>
     </BrowserRouter>
   );

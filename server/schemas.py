@@ -20,12 +20,12 @@ class UserLogin(BaseModel):
     password: str
 
 
-class UserOut(UserBase):
+class UserOut(BaseModel):
     id: int
+    name: str
+    email: str
 
-    model_config = {
-        "from_attributes" : True
-    }
+    model_config = {"from_attributes": True}
 #------courses-------
 class CourseBase(BaseModel):
     name: str
@@ -38,6 +38,10 @@ class CourseCreate(CourseBase):
 class CourseOut(CourseBase):
     id: int
     teacher_id: int
+    name: str
+    code: str
+    semester: int
+    teacher: Optional[UserOut] 
 
     model_config = {
         "from_attributes" : True

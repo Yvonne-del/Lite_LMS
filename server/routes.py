@@ -337,3 +337,12 @@ def mark_reviewed(submission_id: int, db: Session = Depends(get_db), _=Depends(r
     db.commit()
     db.refresh(sub)
     return sub
+
+@router.get("/students/{student_id}/courses", response_model=list[CourseOut])
+def get_student_courses(student_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    student = db.query(User).filter(User.id == student_id, User.role == "student").first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    
+    enrolled_courses = student.enrolled_courses  # if you have a many-to-many
+    return enrolled_courses
