@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+
 const SubmissionsPage = () => {
   const { assignmentId } = useParams();
   const [submissions, setSubmissions] = useState([]);

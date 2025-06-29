@@ -15,6 +15,7 @@ function ProtectedRoute({ children }) {
   return token ? children : <Navigate to="/login" />;
 }
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -34,10 +35,6 @@ function App() {
         <Route path="/dashboard/courses/:id/assignments" element={<AssignmentsPage />} />
         <Route path="/dashboard/courses/:id/students" element={<StudentsPage />} />
         <Route path="/assignments/:assignmentId/submissions" element={<SubmissionsPage />} />
-        <Route path="/student/dashboard" element={<StudentDashboard />} />
-        <Route path="/student/courses/:id/lessons" element={<StudentLessons />} />
-        <Route path="/student/courses/:id/assignments" element={<StudentAssignments />} />
-
       </Routes>
     </BrowserRouter>
   );
