@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 function LandingHero() {
   return (
     <section className="landing-hero">
-      <h1>Welcome to Lite LMS!</h1>
+      <h1>Welcome to Lite LMS</h1>
       <p>Your all-in-one platform for online learning and teaching.</p>
       <div className="hero-buttons">
         <Link to="/register" className="btn">Start Learning</Link>

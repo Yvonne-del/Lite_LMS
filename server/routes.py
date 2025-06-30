@@ -9,6 +9,11 @@ from server.auth import get_password_hash
 from server.schemas import UserLogin
 from fastapi import UploadFile, File, Form
 from typing import Optional
+from server.schemas import CourseOut
+from typing import List
+from server.auth import get_current_user
+from server.models import User
+from sqlalchemy.orm import joinedload
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -62,8 +67,6 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
     }
 }
 
-
-
 #======COURSES======
 @router.post("/courses", response_model=schemas.CourseOut)
 def create_course(
@@ -79,13 +82,26 @@ def create_course(
 
 @router.get("/courses", response_model=List[schemas.CourseOut])
 def get_courses(db: Session = Depends(get_db)):
-    return db.query(models.Course).all()
+    courses = db.query(models.Course).options(
+        joinedload(models.Course.teacher),
+        joinedload(models.Course.assignments),
+        joinedload(models.Course.lessons),
+        joinedload(models.Course.students)
+    ).all()
+    return courses
 
 @router.get("/courses/{course_id}", response_model=schemas.CourseOut)
 def get_course(course_id: int, db: Session = Depends(get_db)):
-    course = db.query(models.Course).get(course_id)
+    course = db.query(models.Course).options(
+        joinedload(models.Course.teacher),
+        joinedload(models.Course.assignments),
+        joinedload(models.Course.lessons),
+        joinedload(models.Course.students)
+    ).filter(models.Course.id == course_id).first()
+
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
+
     return course
 
 @router.delete("/courses/{course_id}")
@@ -336,3 +352,10 @@ def mark_reviewed(submission_id: int, db: Session = Depends(get_db), _=Depends(r
     db.commit()
     db.refresh(sub)
     return sub
+@router.get("/students/{student_id}/courses", response_model=List[CourseOut])
+def get_enrolled_courses(student_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    student = db.query(User).filter(User.id == student_id, User.role == "student").first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    return student.enrolled_courses
