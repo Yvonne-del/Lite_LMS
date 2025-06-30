@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from .database import Base, engine
 from .routes import router 
 from .import routes
 from fastapi.middleware.cors import CORSMiddleware
