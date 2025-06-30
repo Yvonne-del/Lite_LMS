@@ -61,6 +61,9 @@ const StudentDashboard = () => {
       >
         View All Courses
       </Link>
+      <Link to="/student/courses/available" className="btn">View All Courses</Link>
+      <Link to="/student/courses" className="btn ml-2">My Courses</Link>
+
     </StudentLayout>
   );
 };

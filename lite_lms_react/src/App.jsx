@@ -12,6 +12,7 @@ import StudentLessons from './pages/student/StudentLessons'
 import StudentCourses from './pages/student/StudentCourses'
 import StudentAssignments from './pages/student/StudentAssignments'
 import StudentSubmissions from "./pages/student/StudentSubmissions";
+ import AvailableCourses from './pages/student/AvailableCourses';
 
 
 function ProtectedRoute({ children }) {
@@ -108,7 +109,11 @@ function App() {
             </ProtectedRoute>
           }
         />
- 
+        <Route path="/student/courses/available" element={
+          <ProtectedRoute>
+            <AvailableCourses />
+          </ProtectedRoute>
+        } />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

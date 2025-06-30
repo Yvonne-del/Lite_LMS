@@ -11,10 +11,11 @@ from fastapi import UploadFile, File, Form
 from typing import Optional
 from .schemas import CourseOut
 from .auth import get_current_user
-from .models import User
+from .models import User, Course, Assignment, Lesson, Submission
 from sqlalchemy.orm import joinedload
 from fastapi import UploadFile, File, Form
 import os
+from .schemas import EnrolledCourseOut
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -320,14 +321,16 @@ def mark_reviewed(submission_id: int, db: Session = Depends(get_db), _=Depends(r
     db.refresh(sub)
     return sub
 
-@router.get("/students/{student_id}/courses", response_model=List[CourseOut])
-def get_student_courses(student_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    student = db.query(User).filter(User.id == student_id, User.role == "student").first()
+@router.get("/students/{student_id}/courses", response_model=List[EnrolledCourseOut])
+def get_student_courses(student_id: int, db: Session = Depends(get_db)):
+    student = db.query(User).filter(User.id == student_id).first()
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
     
-    enrolled_courses = student.enrolled_courses  # if you have a many-to-many
-    return enrolled_courses
+    enrolled_courses = student.courses_enrolled  
+
+    return student.courses_enrolled
+
 
 @router.get("/students/{student_id}/courses", response_model=List[CourseOut])
 def get_enrolled_courses(student_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
@@ -394,3 +397,20 @@ def get_my_submissions(
         }
         for sub in submissions
     ]
+
+@router.post("/students/{student_id}/enroll")
+def enroll_in_course(student_id: int, data: dict, db: Session = Depends(get_db)):
+    course_id = data.get("course_id")
+    student = db.query(User).filter(User.id == student_id).first()
+    course = db.query(Course).filter(Course.id == course_id).first()
+
+    if not student or not course:
+        raise HTTPException(status_code=404, detail="Student or Course not found")
+
+    if course in student.courses_enrolled:
+        raise HTTPException(status_code=400, detail="Already enrolled")
+
+    student.courses_enrolled.append(course)
+    db.commit()
+    return {"message": f"Student {student.name} enrolled in {course.name}"}
+

@@ -116,3 +116,16 @@ class CourseOut(CourseBase):
     model_config = {
         "from_attributes": True
     }
+from pydantic import BaseModel
+
+class EnrollmentRequest(BaseModel):
+    course_id: int
+
+class EnrolledCourseOut(BaseModel):
+    id:int
+    name:str
+    code:str
+    semester:int
+
+    class Config:
+        orm_mode =True
