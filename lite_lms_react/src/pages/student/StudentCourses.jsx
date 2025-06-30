@@ -1,23 +1,45 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import StudentLayout from '../../components/StudentLayout'; // adjust path if needed
+import StudentLayout from '../../components/StudentLayout'; 
 
 const StudentCourses = () => {
   const [courses, setCourses] = useState([]);
   const token = localStorage.getItem("token");
-  const studentId = localStorage.getItem("userId"); // store it on login
+  const user = JSON.parse(localStorage.getItem("user"));
+  const studentId = user?.id;
+
+  {Array.isArray(courses) ? (
+    courses.map(course => (
+      <div key={course.id}>{course.title}</div>
+    ))
+  ) : (
+    <p>Loading or no courses found.</p>
+  )}
+
+  
 
   useEffect(() => {
+    if (!token || !studentId) {
+      console.error("Missing token or student ID");
+      return;
+    }
+
     fetch(`http://127.0.0.1:8000/students/${studentId}/courses`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch courses");
+        return res.json();
+      })
       .then(setCourses)
       .catch(console.error);
-  }, []);
+  }, [token, studentId]);
 
   return (
     <StudentLayout>
+      <h1>Welcome, {user?.name || "Student"}</h1>
       <h2>My Enrolled Courses</h2>
       {courses.length === 0 ? (
         <p>You are not enrolled in any courses.</p>

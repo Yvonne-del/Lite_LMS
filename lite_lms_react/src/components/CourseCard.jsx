@@ -66,8 +66,14 @@ const CourseCard = ({ course, onUpdate, onDelete }) => {
         </>
       ) : (
         <>
-          <h3>{course.title}</h3>
-          <p>{course.description}</p>
+          <h3 className="text-xl font-semibold">{course.name}</h3>
+          <p><strong>Code:</strong> {course.code}</p>
+          <p><strong>Semester:</strong> {course.semester}</p>
+          <p><strong>Instructor:</strong> {course.teacher?.name || "Not Assigned"}</p>
+          <p><strong>Lessons:</strong> {course.lessons?.length || 0}</p>
+          <p><strong>Assignments:</strong> {course.assignments?.length || 0}</p>
+          <p><strong>Enrolled Students:</strong> {course.students?.length || 0}</p>
+
           <Link to={`/dashboard/courses/${course.id}/lessons`} style={linkBtn}>Lessons</Link>
           <Link to={`/dashboard/courses/${course.id}/assignments`} style={linkBtn}>Assignments</Link>
           <Link to={`/dashboard/courses/${course.id}/students`} style={linkBtn}>Students</Link>

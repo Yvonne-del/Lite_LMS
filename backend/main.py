@@ -23,7 +23,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Health check
 @app.get("/ping")
 def ping():
     return {"message": "pong"}

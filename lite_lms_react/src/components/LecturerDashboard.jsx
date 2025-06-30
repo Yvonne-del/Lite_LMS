@@ -6,6 +6,7 @@ const LecturerDashboard = () => {
   const [courses, setCourses] = useState([]);
   const [formVisible, setFormVisible] = useState(false);
   const [newCourse, setNewCourse] = useState({name: '',code: '',semester: ''});
+  const user = JSON.parse(localStorage.getItem("user"));
 
 
   // Fetch courses from backend
@@ -98,14 +99,12 @@ const LecturerDashboard = () => {
     }
   };
 
-
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <LecturerSidebar />
 
       <div style={{ flex: 1, padding: '30px' }}>
-        <h1>Welcome, Lecturer</h1>
+        <h1>Welcome, {user?.name || "Lecturer"}</h1>
 
         <button onClick={() => setFormVisible(!formVisible)} style={btnStyle}>
           {formVisible ? 'Cancel' : '+ Create Course'}

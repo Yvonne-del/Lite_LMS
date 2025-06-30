@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 from datetime import date
+from typing import List
 
 #------users-------
 class UserBase(BaseModel):
@@ -35,6 +36,7 @@ class CourseBase(BaseModel):
 class CourseCreate(CourseBase):
     teacher_id: int
 
+
 class CourseOut(CourseBase):
     id: int
     teacher_id: int
@@ -43,10 +45,7 @@ class CourseOut(CourseBase):
     semester: int
     teacher: Optional[UserOut] 
 
-    model_config = {
-        "from_attributes" : True
-    }
-#------lessons-------
+
 class LessonBase(BaseModel):
     title: str
     content: Optional[str] = None
@@ -63,10 +62,10 @@ class LessonOut(LessonBase):
     id: int
     course_id: int
 
-model_config = {
-        "from_attributes" : True
-    }
-#------assignments-------
+    model_config = {
+            "from_attributes" : True
+        }
+
 class AssignmentBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -105,3 +104,15 @@ class SubmissionOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
+class CourseOut(CourseBase):
+    id: int
+    teacher_id: int
+    semester: int
+    teacher: Optional[UserOut]
+    assignments: List[AssignmentOut] = []
+    lessons: List[LessonOut] = []
+    students: List[UserOut] = []
+
+    model_config = {
+        "from_attributes": True
+    }
