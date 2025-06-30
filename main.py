@@ -17,11 +17,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # or ["*"] for all origins (less secure)
-    allow_credentials=True,
+    allow_origins=["http://localhost:5173"], 
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 @app.get("/ping")
 def ping():
     return {"message": "pong"}

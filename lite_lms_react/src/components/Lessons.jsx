@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import LecturerLayout from './LecturerLayout';
+import "./Lessons.css";
 
 const Lessons = () => {
   const { id } = useParams();
@@ -94,106 +95,73 @@ const Lessons = () => {
 
   return (
     <LecturerLayout>
-      <h2>Lessons for Course {id}</h2>
+      <div className="lessons-page">
+        <h2 className="lessons-heading">Lessons for Course {id}</h2>
 
-      <input
-        type="text"
-        placeholder="Lesson Title"
-        value={formData.title}
-        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-        style={inputStyle}
-      />
-      <textarea
-        placeholder="Lesson Content"
-        value={formData.content}
-        onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-        style={inputStyle}
-      />
-      <input
-        type="file"
-        accept="video/*"
-        onChange={(e) => setVideo(e.target.files[0])}
-        style={inputStyle}
-      />
-      <button onClick={handleAddLesson} style={btnStyle}>Add Lesson</button>
-
-      <hr />
-
-      {lessons.map((lesson) => (
-        <div key={lesson.id} style={cardStyle}>
+        <div className="lesson-form">
           <input
             type="text"
-            value={lesson.title}
-            onChange={(e) =>
-              setLessons(lessons.map(l => l.id === lesson.id ? { ...l, title: e.target.value } : l))
-            }
-            style={inputStyle}
+            placeholder="Lesson Title"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           />
           <textarea
-            value={lesson.content}
-            onChange={(e) =>
-              setLessons(lessons.map(l => l.id === lesson.id ? { ...l, content: e.target.value } : l))
-            }
-            style={inputStyle}
+            placeholder="Lesson Content"
+            value={formData.content}
+            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
           />
-          
-          {/* ✅ This input lets the lecturer optionally upload a new video */}
           <input
             type="file"
             accept="video/*"
-            onChange={(e) =>
-              setLessons(lessons.map(l =>
-                l.id === lesson.id ? { ...l, newVideoFile: e.target.files[0] } : l
-              ))
-            }
-            style={inputStyle}
+            onChange={(e) => setVideo(e.target.files[0])}
           />
-
-          {lesson.video_url && (
-            <video width="320" controls>
-              <source src={lesson.video_url} />
-            </video>
-          )}
-          <br />
-          <button onClick={() => handleSave(lesson)} style={btnStyle}>Save</button>
-          <button onClick={() => handleDelete(lesson.id)} style={deleteBtn}>Delete</button>
+          <button className="btn add-btn" onClick={handleAddLesson}>Add Lesson</button>
         </div>
-      ))}
+
+        <hr className="divider" />
+
+        <div className="lessons-list">
+          {lessons.map((lesson) => (
+            <div key={lesson.id} className="lesson-card">
+              <input
+                type="text"
+                value={lesson.title}
+                onChange={(e) =>
+                  setLessons(lessons.map(l => l.id === lesson.id ? { ...l, title: e.target.value } : l))
+                }
+              />
+              <textarea
+                value={lesson.content}
+                onChange={(e) =>
+                  setLessons(lessons.map(l => l.id === lesson.id ? { ...l, content: e.target.value } : l))
+                }
+              />
+              <input
+                type="file"
+                accept="video/*"
+                onChange={(e) =>
+                  setLessons(lessons.map(l =>
+                    l.id === lesson.id ? { ...l, newVideoFile: e.target.files[0] } : l
+                  ))
+                }
+              />
+
+              {lesson.video_url && (
+                <video width="320" controls>
+                  <source src={lesson.video_url} />
+                </video>
+              )}
+
+              <div className="lesson-actions">
+                <button className="btn save-btn" onClick={() => handleSave(lesson)}>Save</button>
+                <button className="btn delete-btn" onClick={() => handleDelete(lesson.id)}>Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </LecturerLayout>
   );
-};
-
-const inputStyle = {
-  width: '100%',
-  margin: '5px 0',
-  padding: '8px'
-};
-
-const btnStyle = {
-  backgroundColor: '#28a745',
-  color: 'white',
-  padding: '6px 12px',
-  border: 'none',
-  marginTop: '10px',
-  cursor: 'pointer',
-  borderRadius: '4px'
-};
-
-const deleteBtn = {
-  backgroundColor: '#dc3545',
-  color: 'white',
-  padding: '6px 12px',
-  border: 'none',
-  marginLeft: '10px',
-  borderRadius: '4px',
-  cursor: 'pointer'
-};
-
-const cardStyle = {
-  border: '1px solid #ccc',
-  borderRadius: '6px',
-  padding: '10px',
-  marginTop: '15px'
-};
+}
 
 export default Lessons;

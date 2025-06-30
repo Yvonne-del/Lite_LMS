@@ -1,0 +1,95 @@
+/* AssignmentsPage.css */
+
+.assignments-page {
+  max-width: 900px;
+  margin: auto;
+}
+
+.assignments-heading {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.assignment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.assignment-form input[type="text"],
+.assignment-form textarea,
+.assignment-form input[type="date"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.divider {
+  margin: 30px 0;
+  border: none;
+  height: 1px;
+  background: #ddd;
+}
+
+.assignments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.assignment-card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 8px;
+  background: #fdfdfd;
+}
+
+.assignment-card input[type="text"],
+.assignment-card textarea,
+.assignment-card input[type="date"] {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+}
+
+.assignment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.submissions-btn {
+  background-color: #6c757d;
+  color: white;
+}

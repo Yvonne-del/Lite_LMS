@@ -14,7 +14,7 @@ const LecturerSidebar = () => {
     <div style={sidebarStyle}>
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
         <img
-          src="/profile-placeholder.png"
+          src="src/assets/download.png"
           alt="Lecturer"
           style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
         />
