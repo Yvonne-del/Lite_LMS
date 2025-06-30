@@ -1,13 +1,8 @@
 from fastapi import FastAPI
-from backend import models
-from .database import engine
+from .database import Base, engine
 from .routes import router 
 from .import routes
 from fastapi.middleware.cors import CORSMiddleware
-
-
-# Create all tables in the database
-models.Base.metadata.create_all(bind=engine)
 
 
 # Initialize FastAPI app
