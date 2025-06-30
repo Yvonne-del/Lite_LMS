@@ -22,7 +22,6 @@ class User(Base):
     role = Column(String, default="student")  # student or lecturer
 
     submissions = relationship("Submission", back_populates="user")
-<<<<<<< HEAD:server/models.py
     courses = relationship("Course", back_populates="teacher")
     courses_enrolled = relationship(
         "Course",
@@ -30,9 +29,6 @@ class User(Base):
         back_populates="students"
     )
 
-=======
-    courses = relationship("Course", back_populates="lecturer")
->>>>>>> c127cdb875ff156238a280c216a75b9918536a06:backend/models.py
 
 class Course(Base):
     __tablename__ = "courses"
@@ -41,9 +37,9 @@ class Course(Base):
     name = Column(String, nullable=False)
     code = Column(String, unique=True, nullable=False)
     semester = Column(Integer)
-    lecturer_id = Column(Integer, ForeignKey("users.id"))
+    teacher_id = Column(Integer, ForeignKey("users.id"))
 
-    lecturer = relationship("User", back_populates="courses")
+    teacher = relationship("User", back_populates="courses")
     assignments = relationship("Assignment", back_populates="course")
     lessons = relationship("Lesson", back_populates="course") 
     students = relationship(
@@ -91,3 +87,4 @@ class Submission(Base):
 
     def __repr__(self):
         return f"Submission(id={self.id}, file_path={self.file_path}, timestamp={self.timestamp}, user_id={self.user_id}, assignment_id={self.assignment_id})"
+    

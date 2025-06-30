@@ -10,9 +10,9 @@ import StudentsPage from "./components/StudentsPage";
 import SubmissionsPage from './pages/SubmissionsPage';
 
 import StudentDashboard from './pages/student/StudentDashboard'
-// import StudentLessons from './pages/student/StudentLessons'
+import StudentLessons from './pages/student/StudentLessons'
 import StudentCourses from './pages/student/StudentCourses'
-// import StudentAssignments from './pages/student/StudentAssignments'
+import StudentAssignments from './pages/student/StudentAssignments'
 
 
 function ProtectedRoute({ children }) {
@@ -87,7 +87,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* Future student routes:
         <Route
           path="/student/courses/:id/lessons"
           element={
@@ -103,9 +102,7 @@ function App() {
               <StudentAssignments />
             </ProtectedRoute>
           }
-        /> */}
-
-        {/* Catch-all */}
+        /> 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

@@ -2,11 +2,13 @@ from fastapi import FastAPI
 from backend import models
 from .database import engine
 from .routes import router 
+from .import routes
 from fastapi.middleware.cors import CORSMiddleware
 
 
 # Create all tables in the database
 models.Base.metadata.create_all(bind=engine)
+
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -27,5 +29,4 @@ app.add_middleware(
 def ping():
     return {"message": "pong"}
 
-# Register all routes
-app.include_router(router)
+app.include_router(routes.router)

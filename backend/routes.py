@@ -1,22 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from .auth import verify_password, create_access_token,decode_access_token, require_student, require_lecturer
+from typing import List
 from sqlalchemy.orm import Session
 from . import models, schemas
 from .database import SessionLocal, engine
-from typing import List 
-<<<<<<< HEAD:server/routes.py
-from server.auth import get_password_hash
-from server.schemas import UserLogin
-from fastapi import UploadFile, File, Form
-from typing import Optional
-
-=======
 from .auth import get_password_hash
 from .schemas import UserLogin
->>>>>>> c127cdb875ff156238a280c216a75b9918536a06:backend/routes.py
+from fastapi import UploadFile, File, Form
+from typing import Optional
+from .schemas import CourseOut
+from .auth import get_current_user
+from .models import User
+from sqlalchemy.orm import joinedload
+from fastapi import UploadFile, File, Form
+
 
 models.Base.metadata.create_all(bind=engine)
+
 
 router = APIRouter()
 
@@ -67,8 +68,6 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
     }
 }
 
-
-
 #======COURSES======
 @router.post("/courses", response_model=schemas.CourseOut)
 def create_course(
@@ -84,13 +83,26 @@ def create_course(
 
 @router.get("/courses", response_model=List[schemas.CourseOut])
 def get_courses(db: Session = Depends(get_db)):
-    return db.query(models.Course).all()
+    courses = db.query(models.Course).options(
+        joinedload(models.Course.teacher),
+        joinedload(models.Course.assignments),
+        joinedload(models.Course.lessons),
+        joinedload(models.Course.students)
+    ).all()
+    return courses
 
 @router.get("/courses/{course_id}", response_model=schemas.CourseOut)
 def get_course(course_id: int, db: Session = Depends(get_db)):
-    course = db.query(models.Course).get(course_id)
+    course = db.query(models.Course).options(
+        joinedload(models.Course.teacher),
+        joinedload(models.Course.assignments),
+        joinedload(models.Course.lessons),
+        joinedload(models.Course.students)
+    ).filter(models.Course.id == course_id).first()
+
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
+
     return course
 
 @router.delete("/courses/{course_id}")
@@ -103,101 +115,6 @@ def delete_course(course_id: int, db: Session = Depends(get_db)):
     return {"detail": f"Course {course_id} has been deleted successfully."}
 
 #========LESSONS=========
-@router.post("/lessons", response_model=schemas.LessonOut)
-def create_lesson(
-    lesson: schemas.LessonCreate,
-    _=Depends(require_lecturer),   #Just triggering the dependency
-    db: Session = Depends(get_db)           
-):
-    new_lesson = models.Lesson(**lesson.model_dump())
-    db.add(new_lesson)
-    db.commit()
-    db.refresh(new_lesson)
-    return new_lesson
-
-@router.get("/lessons", response_model=List[schemas.LessonOut])
-def get_lessons(db: Session = Depends(get_db)):
-    return db.query(models.Lesson).all()
-
-@router.get("/lessons/{lesson_id}", response_model=List[schemas.LessonOut])
-def get_lesson(lesson_id: int, db: Session = Depends(get_db)):
-    lesson = db.query(models.Lesson).get(lesson_id)
-    if not lesson:
-        raise HTTPException(status_code=404, detail="Lesson not found")
-    return lesson
-
-#=======ASSIGNMENTS=======
-@router.post("/assignments", response_model=schemas.AssignmentOut)
-def create_assignment(
-assignment: schemas.AssignmentCreate,
-    _=Depends(require_lecturer),   #Just triggering the dependency
-    db: Session = Depends(get_db)           
-):
-    new_assignment = models.Assignment(**assignment.model_dump())
-    db.add(new_assignment)
-    db.commit()
-    db.refresh(new_assignment)
-    return new_assignment
-@router.get("/assignments/{assignment_id}", response_model=schemas.AssignmentOut)
-def get_assignment(assignment_id: int, db: Session = Depends(get_db)):
-    assignment = db.query(models.Assignment).get(assignment_id)
-    if not assignment:
-        raise HTTPException(status_code=404, detail="Assignment not found")
-    return assignment
-
-
-#=======SUBMISSIONS=======
-
-@router.post("/submissions", response_model=schemas.SubmissionOut)
-def create_submission(
-    submission: schemas.SubmissionCreate,
-    _=Depends(require_student),
-    db: Session = Depends(get_db)
-):
-    new_submission = models.Submission(**submission.model_dump())
-    db.add(new_submission)
-    db.commit()
-    db.refresh(new_submission)
-    return new_submission
-
-@router.get("/submission", response_model=List[schemas.SubmissionOut])
-def get_submissions(
-    _=Depends(require_lecturer),
-    db: Session = Depends(get_db)
-):
-    return db.query(models.Submission).all()
-
-@router.get("/submissions/{submission_id}", response_model=schemas.SubmissionOut)
-def get_submission(submission_id: int, 
-        _=Depends(require_lecturer),
-        db: Session = Depends(get_db)):
-    submission = db.get(models.Submission, submission_id)
-    if not submission:
-        raise HTTPException(status_code=404, detail="Submission not found")
-    return submission
-
-# GET course-specific lessons
-@router.get("/courses/{course_id}/lessons", response_model=List[schemas.LessonOut])
-def get_course_lessons(course_id: int, db: Session = Depends(get_db)):
-    lessons = db.query(models.Lesson).filter(models.Lesson.course_id == course_id).all()
-    return lessons
-
-# GET course-specific assignments
-@router.get("/courses/{course_id}/assignments", response_model=List[schemas.AssignmentOut])
-def get_course_assignments(course_id: int, db: Session = Depends(get_db)):
-    assignments = db.query(models.Assignment).filter(models.Assignment.course_id == course_id).all()
-    return assignments
-
-# GET students in a course
-@router.get("/courses/{course_id}/students", response_model=List[schemas.UserOut])
-def get_course_students(course_id: int, db: Session = Depends(get_db)):
-    course = db.query(models.Course).get(course_id)
-    if not course:
-        raise HTTPException(status_code=404, detail="Course not found")
-    return course.students
-
-from fastapi import UploadFile, File, Form
-
 @router.post("/courses/{course_id}/lessons", response_model=schemas.LessonOut)
 def create_lesson(
     course_id: int,
@@ -207,7 +124,6 @@ def create_lesson(
     _=Depends(require_lecturer),
     db: Session = Depends(get_db)
 ):
-    # Save the file if it exists
     video_url = None
     if video:
         file_location = f"videos/{video.filename}"
@@ -226,41 +142,16 @@ def create_lesson(
     db.refresh(new_lesson)
     return new_lesson
 
+@router.get("/lessons", response_model=List[schemas.LessonOut])
+def get_lessons(db: Session = Depends(get_db)):
+    return db.query(models.Lesson).all()
 
-@router.post("/courses/{course_id}/assignments", response_model=schemas.AssignmentOut)
-def create_assignment_for_course(
-    course_id: int,
-    assignment: schemas.AssignmentCreate,
-    _=Depends(require_lecturer),
-    db: Session = Depends(get_db)
-):
-    new_assignment = models.Assignment(
-        title=assignment.title,
-        description=assignment.description,
-        due_date=assignment.due_date,
-        course_id=course_id
-    )
-    db.add(new_assignment)
-    db.commit()
-    db.refresh(new_assignment)
-    return new_assignment
-
-# DELETE lesson
-@router.delete("/lessons/{lesson_id}")
-def delete_lesson(
-    lesson_id: int,
-    _=Depends(require_lecturer),
-    db: Session = Depends(get_db)
-):
+@router.get("/lessons/{lesson_id}", response_model=List[schemas.LessonOut])
+def get_lesson(lesson_id: int, db: Session = Depends(get_db)):
     lesson = db.query(models.Lesson).get(lesson_id)
     if not lesson:
         raise HTTPException(status_code=404, detail="Lesson not found")
-    db.delete(lesson)
-    db.commit()
-    return {"detail": f"Lesson {lesson_id} deleted."}
-
-
-from fastapi import UploadFile, File, Form
+    return lesson
 
 @router.patch("/lessons/{lesson_id}", response_model=schemas.LessonOut)
 def update_lesson(
@@ -290,6 +181,45 @@ def update_lesson(
     db.refresh(lesson)
     return lesson
 
+@router.delete("/lessons/{lesson_id}")
+def delete_lesson(
+    lesson_id: int,
+    _=Depends(require_lecturer),
+    db: Session = Depends(get_db)
+):
+    lesson = db.query(models.Lesson).get(lesson_id)
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    db.delete(lesson)
+    db.commit()
+    return {"detail": f"Lesson {lesson_id} deleted."}
+
+#=======ASSIGNMENTS=======
+@router.post("/courses/{course_id}/assignments", response_model=schemas.AssignmentOut)
+def create_assignment_for_course(
+    course_id: int,
+    assignment: schemas.AssignmentCreate,
+    _=Depends(require_lecturer),
+    db: Session = Depends(get_db)
+):
+    new_assignment = models.Assignment(
+        title=assignment.title,
+        description=assignment.description,
+        due_date=assignment.due_date,
+        course_id=course_id
+    )
+    db.add(new_assignment)
+    db.commit()
+    db.refresh(new_assignment)
+    return new_assignment
+
+@router.get("/assignments/{assignment_id}", response_model=schemas.AssignmentOut)
+def get_assignment(assignment_id: int, db: Session = Depends(get_db)):
+    assignment = db.query(models.Assignment).get(assignment_id)
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+    return assignment
+
 @router.patch("/assignments/{assignment_id}", response_model=schemas.AssignmentOut)
 def update_assignment(
     assignment_id: int,
@@ -307,6 +237,52 @@ def update_assignment(
     db.commit()
     db.refresh(assignment)
     return assignment
+
+#=======SUBMISSIONS=======
+@router.post("/submissions", response_model=schemas.SubmissionOut)
+def create_submission(
+    submission: schemas.SubmissionCreate,
+    _=Depends(require_student),
+    db: Session = Depends(get_db)
+):
+    new_submission = models.Submission(**submission.model_dump())
+    db.add(new_submission)
+    db.commit()
+    db.refresh(new_submission)
+    return new_submission
+
+@router.get("/submission", response_model=List[schemas.SubmissionOut])
+def get_submissions(
+    _=Depends(require_lecturer),
+    db: Session = Depends(get_db)
+):
+    return db.query(models.Submission).all()
+
+@router.get("/submissions/{submission_id}", response_model=schemas.SubmissionOut)
+def get_submission(submission_id: int, 
+        _=Depends(require_lecturer),
+        db: Session = Depends(get_db)):
+    submission = db.get(models.Submission, submission_id)
+    if not submission:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    return submission
+
+@router.get("/assignments/{assignment_id}/submissions", response_model=List[schemas.SubmissionOut])
+def get_submissions_for_assignment(assignment_id: int, db: Session = Depends(get_db), _=Depends(require_lecturer)):
+    return db.query(models.Submission).filter(models.Submission.assignment_id == assignment_id).all()
+
+# GET course-specific lessons
+@router.get("/courses/{course_id}/lessons", response_model=List[schemas.LessonOut])
+def get_course_lessons(course_id: int, db: Session = Depends(get_db)):
+    lessons = db.query(models.Lesson).filter(models.Lesson.course_id == course_id).all()
+    return lessons
+
+# GET course-specific assignments
+@router.get("/courses/{course_id}/assignments", response_model=List[schemas.AssignmentOut])
+def get_course_assignments(course_id: int, db: Session = Depends(get_db)):
+    assignments = db.query(models.Assignment).filter(models.Assignment.course_id == course_id).all()
+    return assignments
+
 
 @router.get("/courses/{course_id}/students", response_model=List[schemas.UserOut])
 def get_students_in_course(course_id: int, db: Session = Depends(get_db)):
@@ -328,9 +304,6 @@ def enroll_student(course_id: int, db: Session = Depends(get_db), current_user=D
     db.commit()
     return {"detail": f"Enrolled in course {course.name}"}
 
-@router.get("/assignments/{assignment_id}/submissions", response_model=List[schemas.SubmissionOut])
-def get_submissions_for_assignment(assignment_id: int, db: Session = Depends(get_db), _=Depends(require_lecturer)):
-    return db.query(models.Submission).filter(models.Submission.assignment_id == assignment_id).all()
 
 @router.patch("/submissions/{submission_id}/review", response_model=schemas.SubmissionOut)
 def mark_reviewed(submission_id: int, db: Session = Depends(get_db), _=Depends(require_lecturer)):
@@ -341,3 +314,21 @@ def mark_reviewed(submission_id: int, db: Session = Depends(get_db), _=Depends(r
     db.commit()
     db.refresh(sub)
     return sub
+
+@router.get("/students/{student_id}/courses", response_model=List[CourseOut])
+def get_student_courses(student_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    student = db.query(User).filter(User.id == student_id, User.role == "student").first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    
+    enrolled_courses = student.enrolled_courses  # if you have a many-to-many
+    return enrolled_courses
+
+@router.get("/students/{student_id}/courses", response_model=List[CourseOut])
+def get_enrolled_courses(student_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    student = db.query(User).filter(User.id == student_id, User.role == "student").first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    return student.enrolled_courses
+
