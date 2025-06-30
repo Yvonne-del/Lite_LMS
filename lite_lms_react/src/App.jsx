@@ -1,4 +1,3 @@
-// App.js
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import Login from './pages/Login';
@@ -8,11 +7,11 @@ import LessonsPage from "./components/Lessons";
 import AssignmentsPage from "./components/Assignments";
 import StudentsPage from "./components/StudentsPage";
 import SubmissionsPage from './pages/SubmissionsPage';
-
 import StudentDashboard from './pages/student/StudentDashboard'
 import StudentLessons from './pages/student/StudentLessons'
 import StudentCourses from './pages/student/StudentCourses'
 import StudentAssignments from './pages/student/StudentAssignments'
+import StudentSubmissions from "./pages/student/StudentSubmissions";
 
 
 function ProtectedRoute({ children }) {
@@ -29,8 +28,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-
-        {/* Protected Routes */}
         <Route
           path="/dashboard"
           element={
@@ -102,7 +99,16 @@ function App() {
               <StudentAssignments />
             </ProtectedRoute>
           }
-        /> 
+        />
+        <Route
+          path="/student/assignments/:assignmentId/submissions"
+          element={
+            <ProtectedRoute>
+              <StudentSubmissions />
+            </ProtectedRoute>
+          }
+        />
+ 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

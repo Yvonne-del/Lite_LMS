@@ -14,12 +14,15 @@ from .auth import get_current_user
 from .models import User
 from sqlalchemy.orm import joinedload
 from fastapi import UploadFile, File, Form
-
+import os
 
 models.Base.metadata.create_all(bind=engine)
 
 
 router = APIRouter()
+
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Dependency to get DB session
 def get_db():
@@ -194,6 +197,12 @@ def delete_lesson(
     db.commit()
     return {"detail": f"Lesson {lesson_id} deleted."}
 
+# GET course-specific lessons
+@router.get("/courses/{course_id}/lessons", response_model=List[schemas.LessonOut])
+def get_course_lessons(course_id: int, db: Session = Depends(get_db)):
+    lessons = db.query(models.Lesson).filter(models.Lesson.course_id == course_id).all()
+    return lessons
+
 #=======ASSIGNMENTS=======
 @router.post("/courses/{course_id}/assignments", response_model=schemas.AssignmentOut)
 def create_assignment_for_course(
@@ -238,6 +247,12 @@ def update_assignment(
     db.refresh(assignment)
     return assignment
 
+# GET course-specific assignments
+@router.get("/courses/{course_id}/assignments", response_model=List[schemas.AssignmentOut])
+def get_course_assignments(course_id: int, db: Session = Depends(get_db)):
+    assignments = db.query(models.Assignment).filter(models.Assignment.course_id == course_id).all()
+    return assignments
+
 #=======SUBMISSIONS=======
 @router.post("/submissions", response_model=schemas.SubmissionOut)
 def create_submission(
@@ -271,17 +286,7 @@ def get_submission(submission_id: int,
 def get_submissions_for_assignment(assignment_id: int, db: Session = Depends(get_db), _=Depends(require_lecturer)):
     return db.query(models.Submission).filter(models.Submission.assignment_id == assignment_id).all()
 
-# GET course-specific lessons
-@router.get("/courses/{course_id}/lessons", response_model=List[schemas.LessonOut])
-def get_course_lessons(course_id: int, db: Session = Depends(get_db)):
-    lessons = db.query(models.Lesson).filter(models.Lesson.course_id == course_id).all()
-    return lessons
 
-# GET course-specific assignments
-@router.get("/courses/{course_id}/assignments", response_model=List[schemas.AssignmentOut])
-def get_course_assignments(course_id: int, db: Session = Depends(get_db)):
-    assignments = db.query(models.Assignment).filter(models.Assignment.course_id == course_id).all()
-    return assignments
 
 
 @router.get("/courses/{course_id}/students", response_model=List[schemas.UserOut])
@@ -332,3 +337,60 @@ def get_enrolled_courses(student_id: int, db: Session = Depends(get_db), user: U
 
     return student.enrolled_courses
 
+@router.post("/assignments/{assignment_id}/submit")
+async def submit_assignment(
+    assignment_id: int,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(require_student),
+    db: Session = Depends(get_db),
+):
+    # Generate unique file name
+    filename = f"{uuid4().hex}_{file.filename}"
+    file_path = os.path.join(UPLOAD_DIR, filename)
+
+    # Save the uploaded file
+    with open(file_path, "wb") as buffer:
+        content = await file.read()
+        buffer.write(content)
+
+    # Create a new submission record
+    submission = Submission(
+        file_path=file_path,
+        timestamp=datetime.utcnow(),
+        user_id=current_user["id"],
+        assignment_id=assignment_id
+    )
+    db.add(submission)
+    db.commit()
+    db.refresh(submission)
+
+    return {
+        "message": "Submission successful",
+        "submission_id": submission.id,
+        "file_path": submission.file_path,
+        "timestamp": submission.timestamp
+    }
+
+@router.get("/assignments/{assignment_id}/my-submissions")
+def get_my_submissions(
+    assignment_id: int,
+    current_user: dict = Depends(require_student),
+    db: Session = Depends(get_db),
+):
+    submissions = db.query(Submission).filter_by(
+        assignment_id=assignment_id,
+        user_id=current_user["id"]
+    ).all()
+
+    if not submissions:
+        return {"message": "No submissions found"}
+
+    return [
+        {
+            "id": sub.id,
+            "file_path": sub.file_path,
+            "timestamp": sub.timestamp,
+            "reviewed": sub.reviewed
+        }
+        for sub in submissions
+    ]
