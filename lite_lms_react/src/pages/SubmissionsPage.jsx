@@ -7,7 +7,7 @@ const SubmissionsPage = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`https://lite-lms-7dkg.onrender.com/${assignmentId}/submissions`, {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/${assignmentId}/submissions`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -16,7 +16,7 @@ const SubmissionsPage = () => {
   }, [assignmentId]);
 
   const handleMarkReviewed = async (submissionId) => {
-    const res = await fetch(`http://127.0.0.1:8000/submissions/${submissionId}/review`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/submissions/${submissionId}/review`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -32,7 +32,7 @@ const SubmissionsPage = () => {
       <h2>Submissions for Assignment {assignmentId}</h2>
       {submissions.map(sub => (
         <div key={sub.id} style={cardStyle}>
-          <p><strong>File:</strong> <a href={`http://127.0.0.1:8000/${sub.file_path}`} target="_blank">Download</a></p>
+          <p><strong>File:</strong> <a href={`${import.meta.env.VITE_API_BASE_URL}/${sub.file_path}`} target="_blank">Download</a></p>
           <p><strong>Timestamp:</strong> {new Date(sub.timestamp).toLocaleString()}</p>
           <p><strong>Reviewed:</strong> {sub.reviewed ? "✅" : "❌"}</p>
           {!sub.reviewed && (

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://lite-lms-7dkg.onrender.com',
+  baseURL: '${import.meta.env.VITE_API_BASE_URL}',
 });
 
 api.interceptors.request.use((req) => {

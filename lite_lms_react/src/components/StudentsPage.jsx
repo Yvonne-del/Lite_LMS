@@ -10,7 +10,7 @@ const StudentsPage = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`https://lite-lms-7dkg.onrender.com/${id}/students`, {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/${id}/students`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {

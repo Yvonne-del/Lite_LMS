@@ -12,7 +12,7 @@ const Assignments= () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`https://lite-lms-7dkg.onrender.com/${id}/assignments`, {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/${id}/assignments`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -30,7 +30,7 @@ const Assignments= () => {
     course_id: parseInt(id)
   };
 
-  const res = await fetch(`http://127.0.0.1:8000/courses/${id}/assignments`, {
+  const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/courses/${id}/assignments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ const Assignments= () => {
   const handleDelete = async (assignmentId) => {
     if (!window.confirm("Delete this assignment?")) return;
 
-    const res = await fetch(`http://127.0.0.1:8000/assignments/${assignmentId}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/assignments/${assignmentId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -68,7 +68,7 @@ const Assignments= () => {
     };
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/assignments/${assignment.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/assignments/${assignment.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

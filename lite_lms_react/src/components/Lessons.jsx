@@ -12,7 +12,7 @@ const Lessons = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`https://lite-lms-7dkg.onrender.com/${id}/lessons`, {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/${id}/lessons`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -50,7 +50,7 @@ const Lessons = () => {
     if (!window.confirm("Delete this lesson?")) return;
 
     try {
-      const res = await fetch(`https://lite-lms-7dkg.onrender.com/lessons/${lessonId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/lessons/${lessonId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -71,7 +71,7 @@ const Lessons = () => {
       form.append("video", lesson.newVideoFile);
     }
 
-    const res = await fetch(`https://lite-lms-7dkg.onrender.com/${lesson.id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${lesson.id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,

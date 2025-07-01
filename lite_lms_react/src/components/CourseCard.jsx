@@ -12,7 +12,7 @@ const CourseCard = ({ course, onUpdate, onDelete }) => {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`https://lite-lms-7dkg.onrender.com/${course.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${course.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ const CourseCard = ({ course, onUpdate, onDelete }) => {
 
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this course?")) {
-      fetch(`http://127.0.0.1:8000/courses/${course.id}`, {
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/courses/${course.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       })
