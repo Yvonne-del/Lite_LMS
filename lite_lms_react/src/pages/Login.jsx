@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import './Login.css';
 
 function Login() {
@@ -9,41 +9,36 @@ function Login() {
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await api.post('/login', {
-      email,
-      password,
-    });
+    try {
+      const response = await api.post('/login', { email, password });
 
-    // Check if response contains access_token
-    if (response.status === 200 && response.data.access_token) {
-      const { access_token, id, name, role } = response.data;
+      const { access_token, user } = response.data;
 
-      localStorage.setItem('token', response.data.access_token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (access_token && user) {
+        localStorage.setItem('token', access_token);
+        localStorage.setItem('user', JSON.stringify(user));
 
-
-      // Navigate to dashboard
-      navigate('/dashboard');
-    } else {
-      alert('Unexpected response from server.');
-      console.error('Unexpected login response:', response);
+        if (user.role === 'lecturer') {
+          navigate('/lecturer-dashboard');
+        } else {
+          navigate('/student-dashboard');
+        }
+      } else {
+        alert('Login failed: invalid response from server');
+        console.error('Login response:', response);
+      }
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Login failed';
+      alert(msg);
+      console.error('Login error:', err);
     }
-  } catch (err) {
-    // Show actual backend message
-    const msg = err.response?.data?.detail || 'Login failed';
-    console.error('Login error:', err);
-    alert(msg);
   }
-  }
-
-
 
   return (
     <div className="login-container">
-      <h2>Login to LearnHub</h2>
+      <h2>Login to Lite LMS</h2>
       <form onSubmit={handleSubmit} className="login-form">
         <label>Email</label>
         <input
