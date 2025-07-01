@@ -1,9 +1,7 @@
-// src/pages/Register.js
 import React, { useState } from 'react';
 import './Register.css';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-
 
 function Register() {
   const [name, setName] = useState('');
@@ -14,40 +12,48 @@ function Register() {
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (password !== confirmPassword) {
-    alert("Passwords do not match!");
-    return;
+    if (password !== confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
+
+    try {
+      // Register
+      await api.post('/register', {
+        name,
+        email,
+        role,
+        password,
+      });
+
+      // Login
+      const { data } = await api.post('/login', {
+        email,
+        password,
+      });
+
+      const { access_token, user } = data;
+
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // Redirect based on role
+      if (user.role === 'lecturer') {
+        navigate('/lecturer-dashboard');
+      } else {
+        navigate('/student-dashboard');
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        'Registration or login failed.';
+      console.error('Registration error:', err);
+      alert(msg);
+    }
   }
-
-  try {
-    // Step 1: Register user
-    const response = await api.post('/register', {
-      name,
-      email,
-      role,
-      password,
-    });
-
-    // Step 2: Immediately log in the user
-    const loginRes = await api.post('/login', {
-      email,
-      password,
-    });
-
-    const { access_token, user } = loginRes.data;
-
-    // Step 3: Save token and full user info
-    localStorage.setItem('token', access_token);
-    localStorage.setItem('user', JSON.stringify(user));
-
-    navigate('/dashboard'); // Redirect to dashboard
-  } catch (err) {
-    alert(err.response?.data?.error || 'Registration or login failed');
-  }
-  }
-
 
   return (
     <div className="register-container">
