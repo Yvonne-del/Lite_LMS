@@ -7,7 +7,7 @@ const SubmissionsPage = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/assignments/${assignmentId}/submissions`, {
+    fetch(`https://lite-lms-7dkg.onrender.com/${assignmentId}/submissions`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

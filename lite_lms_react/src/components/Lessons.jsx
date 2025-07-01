@@ -12,7 +12,7 @@ const Lessons = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/courses/${id}/lessons`, {
+    fetch(`https://lite-lms-7dkg.onrender.com/${id}/lessons`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -29,7 +29,7 @@ const Lessons = () => {
       form.append('content', formData.content);
       if (video) form.append('video', video);
 
-      const res = await fetch(`http://127.0.0.1:8000/courses/${id}/lessons`, {
+      const res = await fetch(`https://lite-lms-7dkg.onrender.com/${id}/lessons`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: form
@@ -50,7 +50,7 @@ const Lessons = () => {
     if (!window.confirm("Delete this lesson?")) return;
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/lessons/${lessonId}`, {
+      const res = await fetch(`https://lite-lms-7dkg.onrender.com/lessons/${lessonId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -71,10 +71,10 @@ const Lessons = () => {
       form.append("video", lesson.newVideoFile);
     }
 
-    const res = await fetch(`http://127.0.0.1:8000/lessons/${lesson.id}`, {
+    const res = await fetch(`https://lite-lms-7dkg.onrender.com/${lesson.id}`, {
       method: "PATCH",
       headers: {
-        Authorization: `Bearer ${token}`, // ✅ NO "Content-Type" with FormData
+        Authorization: `Bearer ${token}`,
       },
       body: form,
     });
